@@ -1,4 +1,10 @@
 const videoGrid = document.getElementById('video-grid');
+var hour = new Date().getHours();
+hour = ("0" + hour).slice(-2);
+var minute = new Date().getMinutes();
+minute = ("0" + minute).slice(-2);
+var time = hour + "." + minute;
+let text = $('#textchat');
 async function getMedia() {
     try {
         const stream =
@@ -43,7 +49,7 @@ function countUser() {
 
 const mainVid = document.getElementById("main-video");
 function changeMainVideo(stream) {
-  mainVid.srcObject = stream;
+    mainVid.srcObject = stream;
 }
 
 const socket = io('/');
@@ -52,8 +58,8 @@ var peerList = [];
 var peer = new Peer(undefined, {
     path: '/peerjs',
     host: '/',
-    port: '8080'
-}); 
+    port: '8081'
+});
 peer.on('open', id => {
     socket.emit('join-room', ROOM_ID, id);
     myPeerId = id;
@@ -278,34 +284,21 @@ function stopRecording() {
     recorder.stop();
 }
 
-let text = $('#textchat');
+
 $('#textchat').keydown((e) => {
-    var hour = new Date().getHours();
-    hour = ("0" + hour).slice(-2);
-    var minute = new Date().getMinutes();
-    minute = ("0" + minute).slice(-2);
-    var time = hour + "." + minute;
     if (e.which == 13 && text.val().length !== 0) {
-        socket.emit('message', text.val(), USERNAME, RANDOM_COLOR, time);
-        text.val('');
+        sendMessage()
     }
 })
 
 var uploadState = 0;
 $('#sendMessage').click(() => {
-    var hour = new Date().getHours();
-    hour = ("0" + hour).slice(-2);
-    var minute = new Date().getMinutes();
-    minute = ("0" + minute).slice(-2);
-    var time = hour + "." + minute;
     if (uploadState == 0) {
-        socket.emit('message', text.val(), USERNAME, RANDOM_COLOR, time);
-        text.val('');
+        sendMessage();
     } else {
         uploadFile();
         const html = '<a href="uploaded-files/' + text.val() + '" target="_blank">' + text.val() + '</a>';
-        socket.emit('message', html, USERNAME, RANDOM_COLOR, time);
-        text.val('');
+        sendMessage();
     }
 })
 
@@ -362,7 +355,7 @@ function uploadFile() {
     }
     fileReader.readAsArrayBuffer(theFile);
     file.value = "";
-}	
+}
 
 function leaveMeeting() {
     let text = "Are you sure?";
@@ -378,3 +371,9 @@ socket.on('user-leave', (peerId, peerName) => {
     videoGrid.removeChild(node);
     countUser();
 })
+
+
+function sendMessage() {
+    socket.emit('message', text.val(), USERNAME, RANDOM_COLOR, time);
+    text.val('');
+}
