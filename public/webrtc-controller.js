@@ -58,9 +58,11 @@ var peerList = [];
 var peer = new Peer(undefined, {
     path: '/peerjs',
     host: '/',
+    secure: true,
     port: '8081'
 });
 peer.on('open', id => {
+    console.log(id)
     socket.emit('join-room', ROOM_ID, id);
     myPeerId = id;
     peerList[id] = USERNAME;
@@ -103,7 +105,9 @@ peer.on('call', call => {
         conn.on('open', function () {
             conn.send(myPeerId + "," + USERNAME);
         });
+        console.log(stream)
     })
+
 
     if (peerList.hasOwnProperty(call.peer) == false) {
         var i = 1;
@@ -134,6 +138,7 @@ peer.on('connection', function (conn) {
 
 function muteUnmute() {
     const enabled = myVideoStream.getAudioTracks()[0].enabled;
+    console.log(myVideoStream.getAudioTracks)
     if (enabled) {
         const html = `
             <i class="material-icons">&#xe02b;</i>
@@ -141,7 +146,6 @@ function muteUnmute() {
             `;
         document.getElementById("audioControl").innerHTML = html;
         myVideoStream.getAudioTracks()[0].enabled = false;
-        myVideoStream1.getAudioTracks()[0].enabled = false;
     } else {
         const html = `
             <i class="material-icons">&#xe029;</i>
