@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const fs = require('fs');
-const connectMessage = require('./rabbitmq/send');
 server.listen(process.env.PORT || 8081);
 
 
@@ -72,9 +71,6 @@ io.on('connection', socket => {
     socket.on('message', (message, sender, color, time) => {
       io.to(roomId).emit('createMessage', message, sender, color, time);
 
-      connectMessage(roomId, JSON.stringify({
-        message, sender, color, time
-      }))
     })
 
     socket.on('leave-meeting', (peerId, peerName) => {
@@ -90,22 +86,3 @@ app.post('/upload', (req, res) => {
   })
   res.end('uploaded');
 });
-
-// let globalChannel
-// const amqp = require('amqplib/callback_api');
-// const queueName = 'pre_news'
-// amqp.connect('amqp://localhost', function (error0, connection) {
-//   if (error0) {
-//     throw error0;
-//   }
-//   connection.createChannel(function (error1, channel) {
-//     if (error1) {
-//       throw error1;
-//     }
-
-//     channel.assertQueue(queueName, {
-//       durable: false
-//     });
-//     globalChannel = channel
-//   });
-// });
